@@ -14,7 +14,7 @@ int WindowGL::start() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//Create Window
-	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "VoxelEngineUpdate", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Impi", NULL, NULL);
 	if (window == NULL) { //Close If Failed To Create Window
 
 		std::cout << "Failed to create GLFW window\n";
@@ -39,9 +39,10 @@ int WindowGL::start() {
 	//Enable OpenGL To Cull Pixels Rendered Behind Others + Enable OpenGL To Render Transparency 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glCullFace(GL_BACK);
+	glLineWidth(4.0f);
+	glCullFace(GL_BACK);
 
 	return 1;
 }

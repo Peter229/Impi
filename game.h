@@ -6,6 +6,10 @@
 #include "camera.h"
 #include "hud.h"
 #include "chunkManager.h"
+#include "collision.h"
+#include "brushManager.h"
+#include "gui.h"
+#include "player.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -55,8 +59,15 @@ private:
 	Camera* camera;
 	Shader* terrainShader;
 	Shader* hudShader;
+	Shader* brushShader;
+	BrushManager* brushManager;
+	GUI* gui;
+	Shader* guiShader;
+	//Model* glTFmodel;
+	Shader* glTFShader;
+	Player* player;
 	frustum frust;
-	chunkManager* cManager;
+	//chunkManager* cManager;
 
 	bool firstMouse;
 	double lastX, lastY;
@@ -71,4 +82,11 @@ private:
 	double lastTimeA;
 	double lastTimeB;
 	int nbFrames;
+
+	std::vector<glm::vec3> cubeVerts;
+	std::vector<glm::vec3> cubeVerts2;
+
+	bool lClick, lShift;
+	glm::vec3 sIntersectionPoint;
+	glm::vec3 eIntersectionPoint;
 };

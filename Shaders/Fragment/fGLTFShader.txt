@@ -1,0 +1,17 @@
+#version 330 core
+out vec4 FragColor;
+
+in vec3 Normal;
+in vec2 UV;
+
+uniform sampler2D ourTexture;
+
+void main() {
+
+	vec4 texel = texture(ourTexture, UV);
+	vec3 lightDir = vec3(0.3, 0.7, 0.5);
+	float diff = max(dot(Normal, lightDir), 0.3);
+	vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
+	
+	FragColor = vec4(vec3(texel.r, texel.g, texel.b) * diffuse, 1.0);
+}

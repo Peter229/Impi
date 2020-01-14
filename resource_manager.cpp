@@ -4,11 +4,17 @@ static std::map<std::string, unsigned int> textures;
 static std::map<std::string, unsigned int> vertexArrays;
 static std::map<std::string, unsigned int> buffers;
 static std::map<std::string, unsigned int> vertexs;
+static std::map<std::string, Model*> models;
 
 void Resource_Manager::clearData() {
 
 	for (auto iter : textures) {
 		glDeleteTextures(1, &iter.second);
+	}
+
+	for (auto iter : models) {
+
+		iter.second->cleanUp();
 	}
 
 	for (auto iter : vertexArrays) {
@@ -20,6 +26,11 @@ void Resource_Manager::clearData() {
 	}
 }
 
+Model* Resource_Manager::getModel(std::string name) {
+
+	return models[name];
+}
+
 unsigned int Resource_Manager::getTexture(std::string name) {
 
 	return textures[name];
@@ -28,6 +39,11 @@ unsigned int Resource_Manager::getTexture(std::string name) {
 void Resource_Manager::loadTexture(const GLchar *file, std::string name) {
 
 	textures[name] = loadTextureFromFile(file);
+}
+
+void Resource_Manager::loadModel(std::string file, std::string name) {
+
+	models[name] = new Model(file);
 }
 
 unsigned int Resource_Manager::loadTextureFromFile(const GLchar * path) {

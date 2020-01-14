@@ -12,7 +12,7 @@ void chunkManager::createChunk(int x, int z, int seed) {
 
 	chunks[32 * x + z] = new chunk(x, z, seed);
 
-	giveNeighbours();
+	//giveNeighbours();
 }
 
 bool chunkManager::checkChunk(int x, int z) {

@@ -59,7 +59,6 @@ void chunk::setNeighbourChunks(chunk* neChunks[4]) {
 	nChunks[2] = neChunks[2];
 	nChunks[3] = neChunks[3];
 	hasNeighbours = true;
-	buildMeshMarchingCubes();
 }
 
 bool chunk::getHasNeigbours() {
@@ -107,7 +106,7 @@ void chunk::genTerrain() {
 					//h = pow(h, 1.35);
 				}
 				//h = (-y +  ((sn.noise(0.031 * (x + gx), 0.11 * y, 0.031 * (z + gz))))) * 100;
-				h = -y + (sn.noise((x + gx) * 0.011, y * 0.03, (z + gz) * 0.011) * 50);
+				h = -y + (sn.noise((x + gx) * 0.011, y * 0.08, (z + gz) * 0.011) * 50);
 				//std::cout << h << "\n";
 				//h = 5 - glm::length(glm::vec3(x, y, z)) + 50 * ((1.5 * sn.noise(0.031 * (x + gx), 0.11 * (y+5), 0.031 * (z + gz))));
 				//if (y < h /*|| y < g*/) {
@@ -121,14 +120,23 @@ void chunk::genTerrain() {
 		}
 	}
 
-	//buildMesh();
+	buildMeshMarchingCubes();
 }
 
 void chunk::buildMeshMarchingCubes() {
 
+	PerlinNoise dn(seed);
+
+	glm::vec3 cubeColourDarken = { 0.01, 0.01, 0.01 };
+	glm::vec3 cubeColourGreen = { 0.0, 1.0, 0.0 };
+	glm::vec3 cubeColourGrey = { 0.8, 0.8, 0.8 };
+
 	for (int x = 0; x < size - 1; x++) {
 		for (int y = 0; y < size - 1; y++) {
 			for (int z = 0; z < size - 1; z++) {
+
+				float t = 5 * dn.noise(0.10 * (gx + x), 0.5, 0.10 * (gz + z));
+
 
 				int cubeIndex = 0;
 
@@ -216,13 +224,24 @@ void chunk::buildMeshMarchingCubes() {
 
 					glm::vec3 norm = glm::normalize(glm::cross((v3 - v1), (v2 - v1)));
 
+					glm::vec3 colour = -(cubeColourDarken * glm::vec3(t) * glm::vec3((32 - y)*0.1));
+
+					if (glm::dot(norm, glm::vec3(0.0f, 1.0f, 0.0f)) < -0.8) {
+						colour += cubeColourGreen;
+					}
+					else {
+						colour += cubeColourGrey;
+					}
+
+					//glm::vec3 colour = glm::vec3(0.8, 0.1, 0.1) - (cubeColourDarken * glm::vec3(t) * glm::vec3((32 - y)*0.1));
+
 					//glm::vec3 v1 = (cubeCorners[a0] + cubeCorners[b0]) / glm::vec3(2.0f);
 					//glm::vec3 v2 = (cubeCorners[a1] + cubeCorners[b1]) / glm::vec3(2.0f);
 					//glm::vec3 v3 = (cubeCorners[a2] + cubeCorners[b2]) / glm::vec3(2.0f);
 
-					tris.push_back({ v1, glm::vec3(0.8, 0.1, 0.1), norm,
-						v2, glm::vec3(0.8, 0.1, 0.1), norm,
-						v3, glm::vec3(0.8, 0.1, 0.1), norm });
+					tris.push_back({ v1, colour, norm,
+						v2, colour, norm,
+						v3, colour, norm });
 				}
 			}
 		}
@@ -315,6 +334,7 @@ void chunk::buildMeshMarchingCubes() {
 			(cubeCorners[a2] + cubeCorners[b2]) / glm::vec3(2.0f), glm::vec3(0.8, 0.1, 0.1), norm });
 	}
 	*/
+
 	if (tris.size() == 0) {
 		shouldRender = false;
 	}
@@ -440,28 +460,6 @@ bool chunk::getShouldRender() {
 }
 
 void chunk::genVAO() {
-
-	/*glm::vec3 cubeColour = { 0.1, 1.0, 0.1 };
-	glm::vec3 cubeColour2 = { 1.0, 0.1, 0.1 };
-	glm::vec3 cubeColour3 = { 0.1, 0.1, 1.0 };
-
-	tris.push_back({ glm::vec3(0.0f, 0.0f, 0.0f), cubeColour, glm::vec3(1.0f, 1.0f, 0.0f), cubeColour, glm::vec3(1.0f, 0.0f, 0.0f), cubeColour });
-	tris.push_back({ glm::vec3(1.0f, 1.0f, 0.0f), cubeColour, glm::vec3(0.0f, 0.0f, 0.0f), cubeColour, glm::vec3(0.0f, 1.0f, 0.0f), cubeColour });
-
-	tris.push_back({ glm::vec3(0.0f, 0.0f, 1.0f), cubeColour, glm::vec3(1.0f, 0.0f, 1.0f), cubeColour, glm::vec3(1.0f, 1.0f, 1.0f), cubeColour });
-	tris.push_back({ glm::vec3(1.0f, 1.0f, 1.0f), cubeColour, glm::vec3(0.0f, 1.0f, 1.0f), cubeColour, glm::vec3(0.0f, 0.0f, 1.0f), cubeColour });
-
-	tris.push_back({ glm::vec3(0.0f, 1.0f, 1.0f), cubeColour2, glm::vec3(0.0f, 1.0f, 0.0f), cubeColour2, glm::vec3(0.0f, 0.0f, 0.0f), cubeColour2 });
-	tris.push_back({ glm::vec3(0.0f, 0.0f, 0.0f), cubeColour2, glm::vec3(0.0f, 0.0f, 1.0f), cubeColour2, glm::vec3(0.0f, 1.0f, 1.0f), cubeColour2 });
-
-	tris.push_back({ glm::vec3(1.0f, 1.0f, 1.0f), cubeColour, glm::vec3(1.0f, 0.0f, 0.0f), cubeColour, glm::vec3(1.0f, 1.0f, 0.0f), cubeColour });
-	tris.push_back({ glm::vec3(1.0f, 0.0f, 0.0f), cubeColour, glm::vec3(1.0f, 1.0f, 1.0f), cubeColour, glm::vec3(1.0f, 0.0f, 1.0f), cubeColour });
-
-	tris.push_back({ glm::vec3(0.0f, 0.0f, 0.0f), cubeColour3, glm::vec3(1.0f, 0.0f, 0.0f), cubeColour3, glm::vec3(1.0f, 0.0f, 1.0f), cubeColour3 });
-	tris.push_back({ glm::vec3(1.0f, 0.0f, 1.0f), cubeColour3, glm::vec3(0.0f, 0.0f, 1.0f), cubeColour3, glm::vec3(0.0f, 0.0f, 0.0f), cubeColour3 });
-
-	tris.push_back({ glm::vec3(0.0f, 1.0f, 0.0f), cubeColour, glm::vec3(1.0f, 1.0f, 1.0f), cubeColour, glm::vec3(1.0f, 1.0f, 0.0f), cubeColour });
-	tris.push_back({ glm::vec3(1.0f, 1.0f, 1.0f), cubeColour, glm::vec3(0.0f, 1.0f, 0.0f), cubeColour, glm::vec3(0.0f, 1.0f, 1.0f), cubeColour });*/
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
